@@ -19,6 +19,12 @@ class Button:
         else:
             return False
 
+    def hover_change_colour(self, hover_colour, current_colour):
+        if self.button_hover():
+            self.colour = hover_colour
+        else:
+            self.colour = current_colour
+
     def button_draw(self):
         font = pg.font.Font(None, 40)
         text = font.render(self.text, True, (200, 30, 28))
