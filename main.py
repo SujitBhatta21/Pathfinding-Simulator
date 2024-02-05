@@ -39,15 +39,15 @@ end_button = Button(screen, WIDTH/10, HEIGHT - (3/4)*HEIGHT, 200, 100,
                     RED, "END")
 block_button = Button(screen, WIDTH/10, HEIGHT - (2.3/4)*HEIGHT, 200, 100,
                       BLACK, "BLOCK")
-start_the_simulator = Button(screen, WIDTH/2.5, HEIGHT - (1/4)*HEIGHT, 300, 100,
+start_the_simulator = Button(screen, (WIDTH/2.5), HEIGHT - (1/4)*HEIGHT, 400, 100,
                              GOLDEN, "Start the Simulator")
 
 # Stores all the grid boxes objects.
 node = []
-node_drawn = False
+grid_drawn = False
 
 
-def main(node_drawn):
+def main(gridDrawn):
     # setting game states.
     intro = 0
     user_pick = 1
@@ -89,31 +89,43 @@ def main(node_drawn):
 
                 # Go back to user_pick game stage from play state.
                 if back_button_play.button_hover() and game_state == play:
-                    node_drawn = False
+                    gridDrawn = False
                     game_state = user_pick
 
                 # Start button:
                 if start_button.button_hover() and game_state == play:
                     start_button.colour = GREY
                     start_pressed = True
+                    end_pressed = False
+                    end_button.colour = RED
+                    block_pressed = False
+                    block_button.colour = BLACK
                     print("Start PRESSED: ", start_pressed)
 
                 # End button:
                 if end_button.button_hover() and game_state == play:
-                    end_button.colour = RED
+                    end_button.colour = GREY
                     end_pressed = True
+                    start_button.colour = GREEN
+                    block_button.colour = BLACK
+                    start_pressed = False
+                    block_pressed = False
                     print("END PRESSED: ", end_pressed)
 
                 # Block button:
                 if block_button.button_hover() and game_state == play:
                     block_button.colour = GREY
                     block_pressed = True
+                    start_button.colour = GREEN
+                    start_pressed = False
+                    end_pressed = False
+                    end_button.colour = RED
                     print("BLOCK PRESSED: ", block_pressed)
 
                 # Checking if a node is clicked.
                 for box in node:
                     if box.button_hover():
-                        if start_pressed and not box.blocked and not box.end_point:
+                        if start_pressed and not block_pressed and not box.end_point:
                             box.colour = GREEN
                             box.start_point = True
                             start_button.colour = GREEN
@@ -158,7 +170,7 @@ def main(node_drawn):
 
         # Displays grid in the screen.
         elif game_state == play:
-            play_draw(node_drawn, start_pressed, end_pressed, block_pressed)
+            play_draw(start_pressed, end_pressed, block_pressed)
 
         # Displays endgame screen.
         elif game_state == end:
@@ -194,7 +206,41 @@ def user_pick_draw():
     enter_button.button_draw()
 
 
-def play_draw(node_drawn, start_pressed, end_pressed, block_pressed):
+def making_grid(grid_drawn):
+    # Drawing the grids.
+    x_coordinate = WIDTH / 2.5
+    y_coordinate = HEIGHT / 10
+    # Below variable is needed to reset y-coordinate value.
+    temp_y = y_coordinate
+    grid_size = 350
+
+    if not grid_drawn:
+        num = int(input_field.text)
+        box_size = grid_size / num
+
+        # Drawing the black rectangle below the grid.
+        extra_size = box_size / 4
+        rect_x = WIDTH / 2.5 - extra_size
+        rect_y = HEIGHT / 10 - extra_size
+        rect_width = (box_size * num + box_size / 4 * (num - 1)) + 2*extra_size
+        rect_height = rect_width  # Making the rectangle a square.
+        pg.draw.rect(screen, BLACK, pg.Rect(rect_x, rect_y, rect_width, rect_height))
+
+        for i in range(num):
+            for j in range(num):
+                sq_box = Node(screen, x_coordinate, y_coordinate, box_size, box_size, WHITE)
+                node.append(sq_box)
+                sq_box.button_draw()    # button_draw() overrides button class method.
+
+                y_coordinate += box_size + box_size / 4
+
+            x_coordinate += box_size + box_size / 4
+            y_coordinate = temp_y
+
+    print(node)
+
+
+def play_draw(start_pressed, end_pressed, block_pressed):
     # Fix this back_button_play is created every iteration...
     back_button_play.hover_change_colour(GREY, GOLDEN)
     back_button_play.button_draw()
@@ -212,27 +258,10 @@ def play_draw(node_drawn, start_pressed, end_pressed, block_pressed):
         end_button.hover_change_colour(GREY, RED)
         end_button.button_draw()
 
-    # Drawing the grids.
-    x_coordinate = WIDTH / 3
-    y_coordinate = HEIGHT / 10
-    # Below variable is needed to reset y-coordinate value.
-    temp_y = y_coordinate
-    grid_size = 350
-
-    if not node_drawn:
-        N = int(input_field.text)
-        box_size = grid_size / N
-        for i in range(N):
-            for j in range(N):
-                sq_box = Node(screen, x_coordinate, y_coordinate, box_size, box_size, RED)
-                node.append(sq_box)
-                sq_box.button_draw()    # button_draw() overrides button class method.
-
-                y_coordinate += box_size + box_size / 4
-
-            x_coordinate += box_size + box_size / 4
-            y_coordinate = temp_y
-        node_drawn = True
+    # Making the grid
+    global grid_drawn
+    making_grid(grid_drawn)
+    grid_drawn = True
 
     # This code is repeated. Make adjustments before making this repo public.
     for box in node:
@@ -244,14 +273,14 @@ def play_draw(node_drawn, start_pressed, end_pressed, block_pressed):
             box.colour = RED
         else:
             box.colour = RED
-        box.hover_change_colour(GREY, RED)
+        box.hover_change_colour(GREY, WHITE)
         box.button_draw()
 
 
-# This should display a pop up telling what error the user has done...
+# This should display a pop-up telling what error the user has done...
 def apology(text=""):
     pass
 
 
 if __name__ == '__main__':
-    main(node_drawn)
+    main(grid_drawn)

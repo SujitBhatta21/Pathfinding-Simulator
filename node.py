@@ -19,5 +19,3 @@ class Node(Button):
 
     def button_draw(self):
         pg.draw.rect(self.screen, self.colour, self.rect_button)
-
-
