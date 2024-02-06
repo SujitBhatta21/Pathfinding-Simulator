@@ -6,6 +6,7 @@ from node import Node
 clock = pg.time.Clock()
 FPS = 60
 
+# initialisation of pygame and screen setup.
 pg.init()
 WIDTH, HEIGHT = 1280, 720
 screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -47,7 +48,7 @@ node = []
 grid_drawn = False
 
 
-def main(gridDrawn):
+def main():
     # setting game states.
     intro = 0
     user_pick = 1
@@ -57,6 +58,7 @@ def main(gridDrawn):
 
     grant_access = False
     valid_input = False
+    global grid_drawn
 
     start_pressed = False
     end_pressed = False
@@ -89,7 +91,7 @@ def main(gridDrawn):
 
                 # Go back to user_pick game stage from play state.
                 if back_button_play.button_hover() and game_state == play:
-                    gridDrawn = False
+                    grid_drawn = False
                     game_state = user_pick
 
                 # Start button:
@@ -125,7 +127,7 @@ def main(gridDrawn):
                 # Checking if a node is clicked.
                 for box in node:
                     if box.button_hover():
-                        if start_pressed and not block_pressed and not box.end_point:
+                        if start_pressed:
                             box.colour = GREEN
                             box.start_point = True
                             start_button.colour = GREEN
@@ -135,15 +137,16 @@ def main(gridDrawn):
                         elif block_pressed and not box.start_point and not box.end_point:
                             box.colour = BLACK
                             box.blocked = True
+                            block_button.colour = BLACK
                             block_pressed = False
 
                         elif end_pressed and not box.blocked and not box.start_point:
                             box.colour = RED
                             box.end_point = True
+                            end_button.colour = RED
                             end_pressed = False
                     else:
-                        box.colour = RED
-                    box.button_draw()
+                        box.colour = WHITE
 
             # Key pressed event displayed inside input_field button. Only integers are allowed to enter.
             if event.type == pg.KEYDOWN and grant_access == True:
@@ -195,7 +198,7 @@ def intro_draw():
     screen.fill(WHITE)
     lets_go_button.hover_change_colour(GREY, YELLOW)
     lets_go_button.button_draw()
-    pathfinding_text = display_text(WIDTH / 2, HEIGHT / 2 - 200, 100, "Grid Simulator", GOLDEN)
+    pathfinding_text = display_text(WIDTH / 2, HEIGHT / 2 - 200, 100, "A* Pathfinding Simulator", GOLDEN)
     screen.blit(pathfinding_text[0], pathfinding_text[1])
 
 
@@ -230,14 +233,11 @@ def making_grid(grid_drawn):
             for j in range(num):
                 sq_box = Node(screen, x_coordinate, y_coordinate, box_size, box_size, WHITE)
                 node.append(sq_box)
-                sq_box.button_draw()    # button_draw() overrides button class method.
 
                 y_coordinate += box_size + box_size / 4
 
             x_coordinate += box_size + box_size / 4
             y_coordinate = temp_y
-
-    print(node)
 
 
 def play_draw(start_pressed, end_pressed, block_pressed):
@@ -273,8 +273,11 @@ def play_draw(start_pressed, end_pressed, block_pressed):
             box.colour = RED
         else:
             box.colour = RED
+
         box.hover_change_colour(GREY, WHITE)
         box.button_draw()
+
+    print(node[0].start_point)
 
 
 # This should display a pop-up telling what error the user has done...
@@ -283,4 +286,4 @@ def apology(text=""):
 
 
 if __name__ == '__main__':
-    main(grid_drawn)
+    main()
