@@ -21,6 +21,9 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 GOLDEN = (255, 215, 0)
+default_end_colour = (255,165,0)        # Orange
+default_start_colour = (64, 224, 208)   # Turquoise
+default_block_colour = BLACK
 
 # Button objects
 # --- For intro screen.
@@ -37,7 +40,7 @@ back_button_play = Button(screen, WIDTH/10, HEIGHT - HEIGHT/4, 200, 100,
 start_button = Button(screen, WIDTH/10, HEIGHT - (3.7/4)*HEIGHT, 200, 100,
                       GREEN, "START")
 end_button = Button(screen, WIDTH/10, HEIGHT - (3/4)*HEIGHT, 200, 100,
-                    RED, "END")
+                    default_end_colour, "END")
 block_button = Button(screen, WIDTH/10, HEIGHT - (2.3/4)*HEIGHT, 200, 100,
                       BLACK, "BLOCK")
 start_the_simulator = Button(screen, (WIDTH/2.5), HEIGHT - (1/4)*HEIGHT, 400, 100,
@@ -99,54 +102,53 @@ def main():
                     start_button.colour = GREY
                     start_pressed = True
                     end_pressed = False
-                    end_button.colour = RED
+                    end_button.colour = default_end_colour
                     block_pressed = False
-                    block_button.colour = BLACK
-                    print("Start PRESSED: ", start_pressed)
+                    block_button.colour = default_block_colour
 
                 # End button:
                 if end_button.button_hover() and game_state == play:
                     end_button.colour = GREY
                     end_pressed = True
-                    start_button.colour = GREEN
-                    block_button.colour = BLACK
+                    start_button.colour = default_start_colour
+                    block_button.colour = default_block_colour
                     start_pressed = False
                     block_pressed = False
-                    print("END PRESSED: ", end_pressed)
 
                 # Block button:
                 if block_button.button_hover() and game_state == play:
                     block_button.colour = GREY
                     block_pressed = True
-                    start_button.colour = GREEN
+                    start_button.colour = default_start_colour
                     start_pressed = False
                     end_pressed = False
-                    end_button.colour = RED
-                    print("BLOCK PRESSED: ", block_pressed)
+                    end_button.colour = default_end_colour
 
                 # Checking if a node is clicked.
                 for box in node:
                     if box.button_hover():
                         if start_pressed:
-                            box.colour = GREEN
                             box.start_point = True
-                            start_button.colour = GREEN
+                            box.blocked = False
+                            box.end_point = False
+                            start_button.colour = default_start_colour
                             # Making sure that start button is set to false if a box is clicked.
                             start_pressed = False
 
-                        elif block_pressed and not box.start_point and not box.end_point:
-                            box.colour = BLACK
+                        elif block_pressed:
                             box.blocked = True
-                            block_button.colour = BLACK
+                            box.start_point = False
+                            box.end_point = False
+                            block_button.colour = default_block_colour
+                            # Remodel this code as block_pressed should do something different not like start and end.
                             block_pressed = False
 
-                        elif end_pressed and not box.blocked and not box.start_point:
-                            box.colour = RED
+                        elif end_pressed:
                             box.end_point = True
-                            end_button.colour = RED
+                            box.start_point = False
+                            box.blocked = False
+                            end_button.colour = default_end_colour
                             end_pressed = False
-                    else:
-                        box.colour = WHITE
 
             # Key pressed event displayed inside input_field button. Only integers are allowed to enter.
             if event.type == pg.KEYDOWN and grant_access == True:
@@ -244,18 +246,19 @@ def play_draw(start_pressed, end_pressed, block_pressed):
     # Fix this back_button_play is created every iteration...
     back_button_play.hover_change_colour(GREY, GOLDEN)
     back_button_play.button_draw()
+    start_the_simulator.hover_change_colour(GREY, GOLDEN)
     start_the_simulator.button_draw()
 
     if not start_pressed:
-        start_button.hover_change_colour(GREY, GREEN)
+        start_button.hover_change_colour(GREY, default_start_colour)
         start_button.button_draw()
 
     if not block_pressed:
-        block_button.hover_change_colour(GREY, BLACK)
+        block_button.hover_change_colour(GREY, default_block_colour)
         block_button.button_draw()
 
     if not end_pressed:
-        end_button.hover_change_colour(GREY, RED)
+        end_button.hover_change_colour(GREY, default_end_colour)
         end_button.button_draw()
 
     # Making the grid
@@ -265,16 +268,15 @@ def play_draw(start_pressed, end_pressed, block_pressed):
 
     # This code is repeated. Make adjustments before making this repo public.
     for box in node:
-        if box.blocked:
-            box.colour = BLACK
-        elif box.start_point:
-            box.colour = GREEN
+        if box.start_point:
+            box.colour = default_start_colour
         elif box.end_point:
-            box.colour = RED
+            box.colour = default_end_colour
+        elif box.blocked:
+            box.colour = default_block_colour
         else:
-            box.colour = RED
+            box.colour = WHITE
 
-        box.hover_change_colour(GREY, WHITE)
         box.button_draw()
 
     print(node[0].start_point)
