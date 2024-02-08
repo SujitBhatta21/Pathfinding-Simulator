@@ -69,14 +69,22 @@ def main():
     end_pressed = False
     block_pressed = False
     block_on = False
+    mouse_button_pressed = False
+
+    # Variables to track start and end nodes
+    start_node = None
+    end_node = None
 
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
+
             # Took me long time to figure out, but it's UP not DOWN.
-            if event.type == pg.MOUSEBUTTONUP:
+            elif event.type == pg.MOUSEBUTTONUP:
+                mouse_button_pressed = False
+
                 # Change game state to user_pick after Let's Go is clicked.
                 if lets_go_button.button_hover() and game_state == intro:
                     screen.fill(WHITE)
@@ -99,6 +107,10 @@ def main():
                 if back_button_play.button_hover() and game_state == play:
                     grid_drawn = False
                     game_state = user_pick
+                    block_pressed = False
+                    print("Start pressed? : ", start_pressed)
+                    print("END pressed? : ", end_pressed)
+                    print("BLOCK pressed? : ", block_pressed)
 
                 # Start button:
                 if start_button.button_hover() and game_state == play:
@@ -131,6 +143,7 @@ def main():
                     else:
                         block_pressed = False
                         block_button.colour = default_block_colour
+                        block_on = False
 
                 if start_the_simulator.button_hover() and game_state == play:
                     start_point_count = 0
@@ -150,18 +163,25 @@ def main():
                         run_simulator = False
 
                 # Checking if a node is clicked.
+                # Checking if a node is clicked.
                 for row in grid:
                     for node in row:
                         if node.button_hover():
                             print("Node is being hovered...")
                             if start_pressed:
                                 print("Start then a node is clicked...")
+                                # Reset the previous start node
+                                if start_node:
+                                    start_node.start_point = False
+                                    start_node = None
+
                                 node.start_point = True
                                 node.blocked = False
                                 node.end_point = False
                                 start_button.colour = default_start_colour
                                 # Making sure that start button is set to false if a box is clicked.
                                 start_pressed = False
+                                start_node = node
 
                             # this button is different from other button.
                             elif block_pressed and block_on:
@@ -170,14 +190,21 @@ def main():
                                 node.end_point = False
 
                             elif end_pressed:
+                                # Reset the previous end node
+                                if end_node:
+                                    end_node.end_point = False
+                                    end_node = None
+
                                 node.end_point = True
                                 node.start_point = False
                                 node.blocked = False
                                 end_button.colour = default_end_colour
                                 end_pressed = False
+                                end_node = node
+
 
             # Key pressed event displayed inside input_field button. Only integers are allowed to enter.
-            if event.type == pg.KEYDOWN and grant_access:
+            elif event.type == pg.KEYDOWN and grant_access:
                 # Backspace feature to remove the latest last no. entered.
                 if event.key == pg.K_BACKSPACE:
                     input_field.text = input_field.text[:-1]
@@ -190,6 +217,20 @@ def main():
 
                     else:
                         valid_input = False
+
+            # Mouse button down event
+            elif event.type == pg.MOUSEBUTTONDOWN:
+                if block_button.button_hover() and game_state == play:
+                    mouse_button_pressed = True
+
+            # Mouse motion event
+            elif event.type == pg.MOUSEMOTION and mouse_button_pressed:
+                for row in grid:
+                    for node in row:
+                        if node.button_hover():
+                            node.blocked = True
+                            node.start_point = False
+                            node.end_point = False
 
         # Displays intro screen.
         if game_state == intro:
@@ -236,45 +277,6 @@ def user_pick_draw():
     enter_button.hover_change_colour(GREY, GREEN)
     enter_button.button_draw()
 
-
-# def making_grid(grid_drawn):
-#     global grid  # Declaring grid as a global variable
-#
-#     x_coordinate = WIDTH / 2.5
-#     y_coordinate = HEIGHT / 10
-#     temp_y = y_coordinate
-#     grid_size = 350
-#
-#     if not grid_drawn:
-#         num = int(input_field.text)
-#         box_size = grid_size / num
-#
-#         pg.draw.rect(screen, BLACK, pg.Rect(WIDTH / 2.5 - box_size / 4, HEIGHT / 10 - box_size / 4,
-#                                             box_size * num + box_size / 4 * (num - 1) + 2 * box_size / 4,
-#                                             box_size * num + box_size / 4 * (num - 1) + 2 * box_size / 4))
-#
-#         # Update the global grid variable
-#         grid = [[Node(screen, x_coordinate + i * (box_size + box_size / 4),
-#                       y_coordinate + j * (box_size + box_size / 4),
-#                       box_size, box_size, WHITE) for j in range(num)] for i in range(num)]
-#
-#         for i in range(num):
-#             for j in range(num):
-#                 node = grid[i][j]
-#                 node.button_draw()
-#
-#                 if i > 0:
-#                     node.neighbors.append(grid[i - 1][j])
-#                 if i < 2:
-#                     node.neighbors.append(grid[i + 1][j])
-#                 if j > 0:
-#                     node.neighbors.append(grid[i][j - 1])
-#                 if j < 2:
-#                     node.neighbors.append(grid[i][j + 1])
-#
-#         for row in grid:
-#             for node in row:
-#                 neighbors = [str(neighbor) for neighbor in node.neighbors]
 
 def making_grid(grid_drawn):
     global grid  # Declaring grid as a global variable
