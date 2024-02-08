@@ -1,5 +1,4 @@
 import pygame as pg
-from button import Button
 
 
 class Node:
@@ -21,10 +20,10 @@ class Node:
 
         self.g = 0             # g --> Distance between start node and the current node.
         self.h = 0             # h --> Heuristic distance from the current node to the end node.
-        self.f = 0
+        self.f = 0             # f --> It is the distance addition of g cost and h cost.
         self.parent = None     # Reference to the previous node in the optimal path
         self.previous = None
-        self.neighbors = []    # List to store neighboring nodes
+        self.neighbors = []    # List to store neighboring nodes for each node.
 
     def button_draw(self):
         pg.draw.rect(self.screen, self.colour, self.rect_button)

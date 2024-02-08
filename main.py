@@ -108,9 +108,6 @@ def main():
                     grid_drawn = False
                     game_state = user_pick
                     block_pressed = False
-                    print("Start pressed? : ", start_pressed)
-                    print("END pressed? : ", end_pressed)
-                    print("BLOCK pressed? : ", block_pressed)
 
                 # Start button:
                 if start_button.button_hover() and game_state == play:
@@ -154,8 +151,7 @@ def main():
                                 start_point_count += 1
                             if node.end_point:
                                 end_point_count += 1
-                    print("Start Point Count:", start_point_count)
-                    print("End Point Count:", end_point_count)
+
                     if start_point_count == 1 and end_point_count == 1:
 
                         run_simulator = True
@@ -167,13 +163,10 @@ def main():
                 for row in grid:
                     for node in row:
                         if node.button_hover():
-                            print("Node is being hovered...")
                             if start_pressed:
-                                print("Start then a node is clicked...")
                                 # Reset the previous start node
                                 if start_node:
                                     start_node.start_point = False
-                                    start_node = None
 
                                 node.start_point = True
                                 node.blocked = False
@@ -193,7 +186,6 @@ def main():
                                 # Reset the previous end node
                                 if end_node:
                                     end_node.end_point = False
-                                    end_node = None
 
                                 node.end_point = True
                                 node.start_point = False
@@ -201,7 +193,6 @@ def main():
                                 end_button.colour = default_end_colour
                                 end_pressed = False
                                 end_node = node
-
 
             # Key pressed event displayed inside input_field button. Only integers are allowed to enter.
             elif event.type == pg.KEYDOWN and grant_access:
@@ -283,7 +274,6 @@ def making_grid(grid_drawn):
 
     x_coordinate = WIDTH / 2.5
     y_coordinate = HEIGHT / 10
-    temp_y = y_coordinate
     grid_size = 350
 
     if not grid_drawn:
@@ -364,11 +354,7 @@ def play_draw(start_pressed, end_pressed, block_pressed):
             node.button_draw()
 
     if run_simulator:
-        print("Start Node:", start_node)
-        print("End Node:", end_node)
-        for row in grid:
-            for node in row:
-                print(f"Node ({node.x}, {node.y}): Start={node.start_point}, End={node.end_point}, Blocked={node.blocked}")
+
         path = a_star(start_node, end_node)
 
         # Update the display with the path
@@ -412,11 +398,7 @@ def a_star(start, end):
 
         neighbors = current.neighbors
 
-        print("Current Node:", current)
-        print("Neighbors:", [str(node) for node in neighbors])
-
         for neighbor in neighbors:
-            print("Checking Neighbor:", neighbor)
 
             if neighbor in closed_set or neighbor.blocked:
                 continue
@@ -431,9 +413,6 @@ def a_star(start, end):
 
                 if neighbor not in open_set:
                     open_set.append(neighbor)
-
-        print("Open Set:", [str(node) for node in open_set])
-        print("Closed Set:", [str(node) for node in closed_set])
 
     print("No path found")
     return []
